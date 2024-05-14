@@ -1,13 +1,33 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { InputCheckbox } from "../InputCheckbox"
-import { TransactionPaneComponent } from "./types"
+import { TransactionPaneComponent, SetTransactionApprovalFunction } from "./types"
+import { useCustomFetch } from "src/hooks/useCustomFetch"
 
-export const TransactionPane: TransactionPaneComponent = ({
-  transaction,
-  loading,
-  setTransactionApproval: consumerSetTransactionApproval,
-}) => {
+export const TransactionPane: TransactionPaneComponent = ({ transaction, loading }) => {
   const [approved, setApproved] = useState(transaction.approved)
+  const { fetchWithoutCache, clearCache } = useCustomFetch()
+
+  const setTransactionApproval = useCallback(
+    async (transactionId: string, newValue: boolean) => {
+      try {
+        await clearCache()
+        await fetchWithoutCache<void, { transactionId: string; value: boolean }>(
+          "setTransactionApproval",
+          { transactionId, value: newValue }
+        )
+      } catch (error) {
+        console.error("Error setting transaction approval:", error)
+      }
+    },
+    [fetchWithoutCache, clearCache]
+  )
+
+  const saveTransaction = useCallback(
+    async ({ transactionId, newValue }) => {
+      await setTransactionApproval(transactionId, newValue)
+    },
+    [setTransactionApproval]
+  )
 
   return (
     <div className="RampPane">
@@ -23,11 +43,7 @@ export const TransactionPane: TransactionPaneComponent = ({
         checked={approved}
         disabled={loading}
         onChange={async (newValue) => {
-          await consumerSetTransactionApproval({
-            transactionId: transaction.id,
-            newValue,
-          })
-
+          await saveTransaction({ transactionId: transaction.id, newValue })
           setApproved(newValue)
         }}
       />

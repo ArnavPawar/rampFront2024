@@ -39,6 +39,10 @@ export function App() {
     [paginatedTransactionsUtils, transactionsByEmployeeUtils]
   )
 
+  const isTransactionsLoading = paginatedTransactionsUtils.loading
+  const isNextPageUnavailable = paginatedTransactions?.nextPage == null
+  const areTransactionsEmpty = transactionsByEmployee?.length === 0
+
   useEffect(() => {
     if (employees === null && !employeeUtils.loading) {
       loadAllTransactions()
@@ -76,11 +80,10 @@ export function App() {
 
         <div className="RampGrid">
           <Transactions transactions={transactions} />
-
           {transactions !== null && (
             <button
               className="RampButton"
-              disabled={paginatedTransactionsUtils.loading}
+              disabled={isTransactionsLoading || isNextPageUnavailable || areTransactionsEmpty}
               onClick={async () => {
                 await loadAllTransactions()
               }}
