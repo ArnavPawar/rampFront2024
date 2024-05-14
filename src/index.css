@@ -92,7 +92,7 @@ hr.RampBreak--l {
 
 .RampInputSelect--dropdown-container {
   display: none;
-  position: fixed;
+  position: absolute;
   width: 100%;
   max-width: 700px;
   border: 1px solid var(--color-darker-shade);
@@ -205,4 +205,12 @@ hr.RampBreak--l {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+}
+
+.InputSelectDropdown {
+  position: absolute;
+  top: 100%; /* Positioned right below the select input */
+  left: 0;
+  width: 100%; /* Optional, depending on your design */
+  z-index: 1000; /* Make sure it's on top of other content */
 }
